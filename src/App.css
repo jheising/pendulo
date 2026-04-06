@@ -1,0 +1,392 @@
+/* === Root & Reset === */
+:root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --border: #475569;
+    --toolbar-height: 48px;
+    --resize-handle-size: 5px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+}
+
+/* === App Layout === */
+.app-layout {
+    display: grid;
+    /* columns: canvas | handle | sidebar — values set via inline style */
+    /* rows: toolbar | main | handle | plots — values set via inline style */
+    grid-template-areas:
+        "toolbar   toolbar   toolbar"
+        "canvas    h-handle  sidebar"
+        "v-handle  v-handle  v-handle"
+        "plots     plots     plots";
+    height: 100vh;
+    width: 100vw;
+}
+
+.app-layout.is-resizing {
+    user-select: none;
+    cursor: grabbing;
+}
+
+.app-toolbar {
+    grid-area: toolbar;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+}
+
+.app-canvas {
+    grid-area: canvas;
+    background: var(--bg-primary);
+    overflow: hidden;
+}
+
+.app-sidebar {
+    grid-area: sidebar;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.app-plots {
+    grid-area: plots;
+    background: var(--bg-secondary);
+    overflow: hidden;
+}
+
+/* === Resize Handles === */
+.resize-handle {
+    background: var(--border);
+    transition: background 0.15s;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.resize-handle:hover,
+.resize-handle-active {
+    background: var(--accent);
+}
+
+.resize-handle-h {
+    grid-area: h-handle;
+    width: var(--resize-handle-size);
+    cursor: col-resize;
+}
+
+.resize-handle-v {
+    cursor: row-resize;
+    height: var(--resize-handle-size);
+}
+
+/* The horizontal plots handle sits in the v-handle grid area */
+.app-layout > .resize-handle-v {
+    grid-area: v-handle;
+}
+
+/* === Toolbar === */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    gap: 12px;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    background: var(--border);
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    font-weight: 600;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+}
+
+.speed-controls {
+    display: flex;
+    gap: 2px;
+    margin-left: 8px;
+}
+
+.btn-speed {
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 4px;
+}
+
+.btn-speed.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.time-display {
+    font-family: monospace;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.diverged-warning {
+    color: var(--danger);
+    font-weight: 600;
+    font-size: 13px;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* === Rig Selector === */
+.rig-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.rig-selector label {
+    color: var(--text-secondary);
+}
+
+.rig-selector select {
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+/* === Preset Selector === */
+.preset-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.preset-selector label {
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.preset-selector select {
+    flex: 1;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 12px;
+}
+
+/* === Canvas === */
+.sim-canvas-container {
+    width: 100%;
+    height: 100%;
+}
+
+.sim-canvas-container canvas {
+    display: block;
+}
+
+/* === Code Editor === */
+.code-editor-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.code-editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-reset {
+    padding: 2px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 3px;
+}
+
+.code-editor {
+    flex: 1;
+    overflow: auto;
+}
+
+.code-editor .cm-editor {
+    height: 100%;
+}
+
+.code-error {
+    padding: 8px 12px;
+    background: rgba(239, 68, 68, 0.15);
+    border-top: 1px solid var(--danger);
+    color: var(--danger);
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    max-height: 80px;
+    overflow: auto;
+}
+
+/* === Sidebar === */
+.sidebar-editor {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.sidebar-panels {
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+/* === Parameter Panel === */
+.parameter-panel {
+    padding: 8px 12px;
+}
+
+.panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.parameter-row {
+    margin-bottom: 6px;
+}
+
+.parameter-label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+}
+
+.parameter-unit {
+    opacity: 0.7;
+}
+
+.parameter-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.parameter-slider {
+    flex: 1;
+    height: 4px;
+    appearance: none;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    outline: none;
+}
+
+.parameter-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+}
+
+.parameter-value {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--text-primary);
+    min-width: 48px;
+    text-align: right;
+}
+
+/* === Time Plots === */
+.time-plots {
+    width: 100%;
+    height: 100%;
+    padding: 4px 8px;
+    overflow: hidden;
+}
