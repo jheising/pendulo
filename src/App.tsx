@@ -26,7 +26,7 @@ export default function App() {
     const [config, setConfig, resetConfig] = usePersistedState<Record<string, number>>("pendulo:config", { ...rig.defaultConfig });
     const [initialConditions, setInitialConditions, resetInitialConditions] = usePersistedState<Record<string, number>>("pendulo:initial-conditions", { ...rig.defaultState });
 
-    const { controller, error: compileError } = useControllerCompiler(code);
+    const { controller, error: compileError, recompile } = useControllerCompiler(code);
     const [speedMultiplier, setSpeedMultiplier] = useState(1);
 
     // Resizable panes
@@ -71,8 +71,9 @@ export default function App() {
     }, [resetConfig, resetInitialConditions]);
 
     const handleReset = useCallback(() => {
+        recompile();
         sim.reset(initialConditions);
-    }, [sim, initialConditions]);
+    }, [sim, initialConditions, recompile]);
 
     const handleRigChange = useCallback(
         (newRigId: string) => {
@@ -80,9 +81,10 @@ export default function App() {
             const newRig = rigRegistry[newRigId];
             setConfig({ ...newRig.defaultConfig });
             setInitialConditions({ ...newRig.defaultState });
+            recompile();
             sim.reset();
         },
-        [sim, setConfig, setInitialConditions]
+        [sim, setConfig, setInitialConditions, recompile]
     );
 
     return (
@@ -114,7 +116,7 @@ export default function App() {
 
             <aside className="app-sidebar">
                 <div className="sidebar-editor" style={{ flex: "1 1 0", minHeight: 0 }}>
-                    <CodeEditor code={code} onChange={setCode} error={compileError} onReset={resetCode} />
+                    <CodeEditor code={code} onChange={setCode} error={compileError} onReset={resetCode} docs={rig.getControllerDocs()} />
                 </div>
                 <ResizeHandle direction="vertical" onMouseDown={panels.startDrag} isDragging={panels.isDragging} />
                 <div className="sidebar-panels" style={{ height: panels.size }}>

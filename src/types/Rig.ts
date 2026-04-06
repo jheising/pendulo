@@ -43,6 +43,20 @@ export interface ConfigPreset<C extends Record<string, number>> {
     config: C;
 }
 
+export interface ControllerFieldDoc {
+    name: string;
+    description: string;
+    unit: string;
+}
+
+export interface ControllerDocs {
+    stateFields: ControllerFieldDoc[];
+    returnDescription: string;
+    returnUnit: string;
+    /** Full LLM-ready prompt that describes the system and expected function signature */
+    llmPrompt: string;
+}
+
 export interface Rig<S extends Record<string, number>, C extends Record<string, number>> {
     name: string;
     description: string;
@@ -57,4 +71,5 @@ export interface Rig<S extends Record<string, number>, C extends Record<string, 
     /** Given a click in CSS pixels, return the perturbation to apply (or null if too far away). */
     getPerturbation(clickX: number, clickY: number, state: S, config: C, dims: Dimensions): PerturbationResult | null;
     getPresets(): ConfigPreset<C>[];
+    getControllerDocs(): ControllerDocs;
 }

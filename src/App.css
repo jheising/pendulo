@@ -1,17 +1,27 @@
 /* === Root & Reset === */
 :root {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-tertiary: #334155;
-    --text-primary: #e2e8f0;
-    --text-secondary: #94a3b8;
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
-    --danger: #ef4444;
-    --success: #22c55e;
-    --border: #475569;
+    --bg-primary: #080c14;
+    --bg-secondary: #0d1321;
+    --bg-tertiary: #151d2e;
+    --bg-panel: rgba(13, 19, 33, 0.85);
+    --text-primary: #d0d8e8;
+    --text-secondary: #5a6a84;
+    --text-bright: #f0f4fc;
+    --accent: #00e5ff;
+    --accent-dim: #00b8d4;
+    --accent-glow: rgba(0, 229, 255, 0.25);
+    --accent-glow-strong: rgba(0, 229, 255, 0.5);
+    --accent-2: #ff6b35;
+    --accent-2-glow: rgba(255, 107, 53, 0.3);
+    --danger: #ff3d5a;
+    --danger-glow: rgba(255, 61, 90, 0.2);
+    --success: #00e676;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-bright: rgba(0, 229, 255, 0.15);
     --toolbar-height: 48px;
     --resize-handle-size: 5px;
+    --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
 }
 
 * {
@@ -21,17 +31,16 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: var(--font-sans);
     background: var(--bg-primary);
     color: var(--text-primary);
     overflow: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* === App Layout === */
 .app-layout {
     display: grid;
-    /* columns: canvas | handle | sidebar — values set via inline style */
-    /* rows: toolbar | main | handle | plots — values set via inline style */
     grid-template-areas:
         "toolbar   toolbar   toolbar"
         "canvas    h-handle  sidebar"
@@ -46,15 +55,18 @@ body {
     cursor: grabbing;
 }
 
+/* === Toolbar === */
 .app-toolbar {
     grid-area: toolbar;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 12px;
+    padding: 0 16px;
     background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-bright);
     gap: 12px;
+    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.4);
+    z-index: 20;
 }
 
 .app-canvas {
@@ -68,18 +80,21 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-bright);
 }
 
 .app-plots {
     grid-area: plots;
     background: var(--bg-secondary);
+    border-top: 1px solid var(--border-bright);
     overflow: hidden;
 }
 
 /* === Resize Handles === */
 .resize-handle {
     background: var(--border);
-    transition: background 0.15s;
+    transition: background 0.2s, box-shadow 0.2s;
     flex-shrink: 0;
     z-index: 10;
 }
@@ -87,6 +102,7 @@ body {
 .resize-handle:hover,
 .resize-handle-active {
     background: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .resize-handle-h {
@@ -100,12 +116,11 @@ body {
     height: var(--resize-handle-size);
 }
 
-/* The horizontal plots handle sits in the v-handle grid area */
 .app-layout > .resize-handle-v {
     grid-area: v-handle;
 }
 
-/* === Toolbar === */
+/* === Toolbar Controls === */
 .toolbar {
     display: flex;
     align-items: center;
@@ -128,34 +143,40 @@ body {
 
 .btn {
     padding: 6px 14px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-bright);
     border-radius: 6px;
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    font-size: 13px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    transition: all 0.15s;
     white-space: nowrap;
 }
 
 .btn:hover {
-    background: var(--border);
+    background: rgba(0, 229, 255, 0.08);
+    border-color: rgba(0, 229, 255, 0.3);
+    color: var(--text-bright);
 }
 
 .btn:disabled {
-    opacity: 0.4;
+    opacity: 0.3;
     cursor: not-allowed;
 }
 
 .btn-primary {
-    background: var(--accent);
+    background: rgba(0, 229, 255, 0.12);
     border-color: var(--accent);
-    color: white;
+    color: var(--accent);
     font-weight: 600;
+    box-shadow: 0 0 10px var(--accent-glow), inset 0 0 10px rgba(0, 229, 255, 0.05);
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: var(--accent-hover);
+    background: rgba(0, 229, 255, 0.2);
+    box-shadow: 0 0 20px var(--accent-glow-strong), inset 0 0 15px rgba(0, 229, 255, 0.08);
 }
 
 .speed-controls {
@@ -166,37 +187,36 @@ body {
 
 .btn-speed {
     padding: 4px 8px;
-    font-size: 11px;
+    font-size: 10px;
+    font-family: var(--font-mono);
     border-radius: 4px;
 }
 
 .btn-speed.active {
-    background: var(--accent);
+    background: rgba(0, 229, 255, 0.15);
     border-color: var(--accent);
-    color: white;
+    color: var(--accent);
+    box-shadow: 0 0 6px var(--accent-glow);
 }
 
 .time-display {
-    font-family: monospace;
-    font-size: 14px;
-    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent-dim);
+    letter-spacing: 0.5px;
 }
 
 .diverged-warning {
     color: var(--danger);
     font-weight: 600;
-    font-size: 13px;
-    animation: pulse 1s infinite;
+    font-size: 12px;
+    text-shadow: 0 0 10px var(--danger-glow);
+    animation: pulse-glow 1.5s ease-in-out infinite;
 }
 
-@keyframes pulse {
-    0%,
-    100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--danger-glow); }
+    50% { opacity: 0.6; text-shadow: 0 0 20px var(--danger-glow), 0 0 40px var(--danger-glow); }
 }
 
 /* === Rig Selector === */
@@ -204,20 +224,34 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .rig-selector label {
     color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 1px;
+    font-weight: 600;
 }
 
-.rig-selector select {
-    padding: 4px 8px;
-    border: 1px solid var(--border);
+.rig-selector select,
+.preset-selector select {
+    padding: 5px 10px;
+    border: 1px solid var(--border-bright);
     border-radius: 4px;
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    font-size: 13px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.rig-selector select:focus,
+.preset-selector select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
 }
 
 /* === Preset Selector === */
@@ -229,24 +263,20 @@ body {
     border-bottom: 1px solid var(--border);
     font-size: 12px;
     flex-shrink: 0;
+    background: var(--bg-tertiary);
 }
 
 .preset-selector label {
     color: var(--text-secondary);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    font-size: 10px;
     white-space: nowrap;
 }
 
 .preset-selector select {
     flex: 1;
-    padding: 4px 8px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    font-size: 12px;
 }
 
 /* === Canvas === */
@@ -273,20 +303,135 @@ body {
     justify-content: space-between;
     padding: 8px 12px;
     background: var(--bg-tertiary);
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 600;
-    color: var(--text-secondary);
-    border-bottom: 1px solid var(--border);
+    color: var(--accent-dim);
+    border-bottom: 1px solid var(--border-bright);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1.5px;
 }
 
-.btn-reset {
+.code-editor-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-reset,
+.btn-docs {
     padding: 2px 8px;
-    font-size: 10px;
+    font-size: 9px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
     border-radius: 3px;
+    font-family: var(--font-sans);
+}
+
+.btn-docs {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* === API Reference === */
+.api-reference {
+    padding: 10px 12px;
+    background: rgba(0, 229, 255, 0.04);
+    border-bottom: 1px solid var(--border-bright);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    max-height: 200px;
+}
+
+.api-signature {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.api-section {
+    margin-bottom: 8px;
+}
+
+.api-section:last-child {
+    margin-bottom: 0;
+}
+
+.api-section-title {
+    color: var(--text-secondary);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+    font-family: var(--font-sans);
+    font-weight: 600;
+}
+
+.api-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.api-table td {
+    padding: 2px 0;
+    vertical-align: top;
+}
+
+.api-field-name {
+    color: var(--accent-dim);
+    white-space: nowrap;
+    padding-right: 12px;
+}
+
+.api-field-desc {
+    color: var(--text-primary);
+    opacity: 0.7;
+    padding-right: 8px;
+}
+
+.api-field-unit {
+    color: var(--text-secondary);
+    white-space: nowrap;
+    text-align: right;
+}
+
+.api-detail {
+    color: var(--text-primary);
+    opacity: 0.7;
+}
+
+.api-prompt-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+}
+
+.btn-copy-prompt {
+    padding: 3px 10px;
+    font-size: 10px;
+    font-family: var(--font-sans);
+    border-radius: 3px;
+    border: 1px solid var(--accent);
+    background: rgba(0, 229, 255, 0.08);
+    color: var(--accent);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+}
+
+.btn-copy-prompt:hover {
+    background: rgba(0, 229, 255, 0.15);
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.api-prompt-hint {
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-family: var(--font-sans);
 }
 
 .code-editor {
@@ -296,15 +441,16 @@ body {
 
 .code-editor .cm-editor {
     height: 100%;
+    font-family: var(--font-mono) !important;
 }
 
 .code-error {
     padding: 8px 12px;
-    background: rgba(239, 68, 68, 0.15);
+    background: var(--danger-glow);
     border-top: 1px solid var(--danger);
     color: var(--danger);
-    font-family: monospace;
-    font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
     white-space: pre-wrap;
     max-height: 80px;
     overflow: auto;
@@ -320,66 +466,81 @@ body {
 .sidebar-panels {
     overflow-y: auto;
     flex-shrink: 0;
+    background: var(--bg-secondary);
 }
 
 /* === Parameter Panel === */
 .parameter-panel {
-    padding: 8px 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
 }
 
 .panel-title {
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: var(--accent-dim);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
 }
 
 .parameter-row {
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .parameter-label {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-secondary);
-    margin-bottom: 2px;
+    margin-bottom: 3px;
+    font-weight: 500;
 }
 
 .parameter-unit {
-    opacity: 0.7;
+    opacity: 0.5;
+    font-size: 10px;
 }
 
 .parameter-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .parameter-slider {
     flex: 1;
-    height: 4px;
+    height: 3px;
     appearance: none;
     background: var(--bg-tertiary);
     border-radius: 2px;
     outline: none;
+    transition: box-shadow 0.15s;
+}
+
+.parameter-slider:hover {
+    box-shadow: 0 0 6px var(--accent-glow);
 }
 
 .parameter-slider::-webkit-slider-thumb {
     appearance: none;
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: var(--accent);
     cursor: pointer;
+    box-shadow: 0 0 6px var(--accent-glow);
+    transition: box-shadow 0.15s;
+}
+
+.parameter-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 12px var(--accent-glow-strong);
 }
 
 .parameter-value {
-    font-family: monospace;
-    font-size: 12px;
-    color: var(--text-primary);
-    min-width: 48px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-dim);
+    min-width: 50px;
     text-align: right;
 }
 

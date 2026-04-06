@@ -79,7 +79,7 @@ export function SimCanvas({ rig, state, config, lastForce, onPerturb }: SimCanva
 
             ctx.beginPath();
             ctx.arc(ripple.x, ripple.y, radius, 0, 2 * Math.PI);
-            ctx.strokeStyle = `rgba(251, 191, 36, ${opacity})`;
+            ctx.strokeStyle = `rgba(0, 229, 255, ${opacity})`;
             ctx.lineWidth = lineWidth;
             ctx.stroke();
 
@@ -88,7 +88,7 @@ export function SimCanvas({ rig, state, config, lastForce, onPerturb }: SimCanva
                 const flashOpacity = (1 - progress / 0.3) * 0.15 * ripple.strength;
                 ctx.beginPath();
                 ctx.arc(ripple.x, ripple.y, radius, 0, 2 * Math.PI);
-                ctx.fillStyle = `rgba(251, 191, 36, ${flashOpacity})`;
+                ctx.fillStyle = `rgba(0, 229, 255, ${flashOpacity})`;
                 ctx.fill();
             }
         }
@@ -199,12 +199,15 @@ function drawForceArrow(ctx: CanvasRenderingContext2D, force: number, width: num
     const arrowLength = Math.min(Math.abs(force) * 3, 120);
     const direction = Math.sign(force);
 
-    ctx.strokeStyle = "#22c55e";
-    ctx.fillStyle = "#22c55e";
-    ctx.lineWidth = 3;
-
     const startX = centerX;
     const endX = centerX + arrowLength * direction;
+
+    // Arrow glow
+    ctx.shadowColor = "rgba(0, 230, 118, 0.4)";
+    ctx.shadowBlur = 8;
+    ctx.strokeStyle = "#00e676";
+    ctx.fillStyle = "#00e676";
+    ctx.lineWidth = 2;
 
     // Arrow line
     ctx.beginPath();
@@ -215,13 +218,15 @@ function drawForceArrow(ctx: CanvasRenderingContext2D, force: number, width: num
     // Arrow head
     ctx.beginPath();
     ctx.moveTo(endX, arrowY);
-    ctx.lineTo(endX - 10 * direction, arrowY - 6);
-    ctx.lineTo(endX - 10 * direction, arrowY + 6);
+    ctx.lineTo(endX - 10 * direction, arrowY - 5);
+    ctx.lineTo(endX - 10 * direction, arrowY + 5);
     ctx.closePath();
     ctx.fill();
+    ctx.shadowBlur = 0;
 
     // Force label
-    ctx.font = "12px monospace";
+    ctx.font = "10px 'JetBrains Mono', monospace";
     ctx.textAlign = "center";
-    ctx.fillText(`${force.toFixed(1)} N`, centerX, arrowY + 20);
+    ctx.fillStyle = "rgba(0, 230, 118, 0.6)";
+    ctx.fillText(`${force.toFixed(1)} N`, centerX, arrowY + 18);
 }

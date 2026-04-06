@@ -1,4 +1,4 @@
-import type { Rig, Dimensions, PlotDefinition, PerturbationResult, ConfigPreset } from "@/types/Rig";
+import type { Rig, Dimensions, PlotDefinition, PerturbationResult, ConfigPreset, ControllerDocs } from "@/types/Rig";
 import type { CartPendulumState, CartPendulumConfig } from "./types";
 import { cartPendulumDerivatives } from "./physics";
 import { renderCartPendulum, getBobScreenPosition } from "./renderer";
@@ -124,5 +124,59 @@ export const cartPendulumRig: Rig<CartPendulumState, CartPendulumConfig> = {
                 config: { M: 1.0, m: 0.3, l: 1.0, g: 1.62, b: 0.1, maxForce: 30 }
             }
         ];
+    },
+
+    getControllerDocs(): ControllerDocs {
+        return {
+            stateFields: [
+                { name: "state.angle", description: "Pendulum angle from vertical (0 = upright, positive = tilted right)", unit: "rad" },
+                { name: "state.angularVelocity", description: "Pendulum angular velocity (positive = falling right)", unit: "rad/s" },
+                { name: "state.cartPosition", description: "Cart position on the track (positive = right of origin)", unit: "m" },
+                { name: "state.cartVelocity", description: "Cart velocity (positive = moving right)", unit: "m/s" }
+            ],
+            returnDescription: "Horizontal force applied to the cart. Positive = push right, negative = push left. Clamped to the configured max force.",
+            returnUnit: "N",
+            llmPrompt: [
+                "Write a JavaScript controller function for an inverted pendulum on a cart.",
+                "",
+                "## System",
+                "A pendulum is attached to a cart that moves along a horizontal track.",
+                "The goal is to keep the pendulum balanced upright (angle = 0) and the cart near the origin (position = 0).",
+                "You control the cart by applying a horizontal force.",
+                "",
+                "## Function signature",
+                "```javascript",
+                "function controller(state, dt) {",
+                "    // Your code here",
+                "    return force; // number (Newtons)",
+                "}",
+                "```",
+                "",
+                "## Inputs",
+                "- `state.angle` — Pendulum angle from vertical in radians. 0 = perfectly upright. Positive = tilted right.",
+                "- `state.angularVelocity` — Angular velocity in rad/s. Positive = falling rightward.",
+                "- `state.cartPosition` — Cart position in meters. Positive = right of origin.",
+                "- `state.cartVelocity` — Cart velocity in m/s. Positive = moving right.",
+                "- `dt` — Fixed simulation timestep (0.001 seconds). Useful if you need to integrate or accumulate values over time.",
+                "",
+                "## Output",
+                "Return a number representing horizontal force in Newtons to apply to the cart.",
+                "- Positive value pushes the cart right.",
+                "- Negative value pushes the cart left.",
+                "- The force is clamped to a configurable maximum (default: 30 N).",
+                "- If the function throws, returns NaN, or returns a non-number, zero force is applied.",
+                "",
+                "## Physics notes",
+                "- When the pendulum tilts right (positive angle), pushing the cart right (positive force) moves the cart under the lean, which helps recover.",
+                "- Cart position and velocity gains should have the SAME sign as the angle gains — this indirectly steers the pendulum to lean toward center.",
+                "- The system starts with the pendulum at ~10 degrees from vertical.",
+                "",
+                "## Constraints",
+                "- You must define a function called `controller`.",
+                "- You can use any standard JavaScript (ES2023) — Math, closures, variables outside the function for accumulated state, etc.",
+                "- Do not use DOM APIs, fetch, or async/await — the function runs in a synchronous sandbox.",
+                "- The function is called ~1000 times per simulated second. Keep it fast."
+            ].join("\n")
+        };
     }
 };
