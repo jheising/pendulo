@@ -30,9 +30,9 @@ export default function App() {
     const [speedMultiplier, setSpeedMultiplier] = useState(1);
 
     // Resizable panes
-    const sidebar = useResizable({ direction: "horizontal", initialSize: 420, minSize: 250, maxSize: 800, inverted: true, storageKey: "pendulo:sidebar-width" });
-    const plots = useResizable({ direction: "vertical", initialSize: 180, minSize: 80, maxSize: 500, inverted: true, storageKey: "pendulo:plots-height" });
-    const panels = useResizable({ direction: "vertical", initialSize: 280, minSize: 100, maxSize: 600, inverted: true, storageKey: "pendulo:panels-height" });
+    const sidebar = useResizable({ direction: "horizontal", initialSize: 420, minSize: 250, maxSize: 9999, inverted: true, storageKey: "pendulo:sidebar-width" });
+    const plots = useResizable({ direction: "vertical", initialSize: 180, minSize: 80, maxSize: 9999, inverted: true, storageKey: "pendulo:plots-height" });
+    const panels = useResizable({ direction: "vertical", initialSize: 280, minSize: 100, maxSize: 9999, inverted: true, storageKey: "pendulo:panels-height" });
     const anyDragging = sidebar.isDragging || plots.isDragging || panels.isDragging;
 
     // Sync controller with engine
@@ -109,7 +109,7 @@ export default function App() {
             </header>
 
             <section className="app-canvas" aria-label="Simulation visualization">
-                <SimCanvas rig={rig} state={sim.state} config={config} lastForce={sim.lastForce} onPerturb={sim.perturb} />
+                <SimCanvas rig={rig} state={sim.state} config={config} lastForce={sim.lastForce} isRunning={sim.status === "running"} onPerturb={sim.perturb} />
             </section>
 
             <ResizeHandle direction="horizontal" onMouseDown={sidebar.startDrag} isDragging={sidebar.isDragging} />

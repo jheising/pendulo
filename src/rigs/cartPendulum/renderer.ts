@@ -19,6 +19,14 @@ interface TrailPoint {
 }
 
 const bobTrail: TrailPoint[] = [];
+let trailsEnabled = true;
+
+export function setTrailsEnabled(enabled: boolean): void {
+    trailsEnabled = enabled;
+    if (!enabled) {
+        bobTrail.length = 0;
+    }
+}
 
 /** Returns the bob's position in CSS pixels (not retina-scaled). */
 export function getBobScreenPosition(state: CartPendulumState, config: CartPendulumConfig, dims: Dimensions): ScreenPosition {
@@ -107,8 +115,10 @@ export function renderCartPendulum(ctx: CanvasRenderingContext2D, state: CartPen
         ctx.stroke();
     }
 
-    // Speed lines on the cart
-    drawSpeedLines(ctx, state.xDot, centerX, cartY, CART_WIDTH, CART_HEIGHT);
+    // Speed lines on the cart (only when sim is active)
+    if (trailsEnabled) {
+        drawSpeedLines(ctx, state.xDot, centerX, cartY, CART_WIDTH, CART_HEIGHT);
+    }
 
     // --- Pendulum rod ---
     const pivotX = centerX;
@@ -117,12 +127,13 @@ export function renderCartPendulum(ctx: CanvasRenderingContext2D, state: CartPen
     const bobX = pivotX + rodLength * Math.sin(state.theta);
     const bobY = pivotY - rodLength * Math.cos(state.theta);
 
-    // Record bob trail in world space
-    const bobWorldX = state.x + config.l * Math.sin(state.theta);
-    bobTrail.push({ worldX: bobWorldX, worldY: bobY });
-    if (bobTrail.length > TRAIL_LENGTH) bobTrail.shift();
-
-    drawTrail(ctx, bobTrail, state.x, centerX, scale, "255, 107, 53");
+    // Record and draw bob trail (only when sim is active)
+    if (trailsEnabled) {
+        const bobWorldX = state.x + config.l * Math.sin(state.theta);
+        bobTrail.push({ worldX: bobWorldX, worldY: bobY });
+        if (bobTrail.length > TRAIL_LENGTH) bobTrail.shift();
+        drawTrail(ctx, bobTrail, state.x, centerX, scale, "255, 107, 53");
+    }
 
     // Rod with gradient
     const rodGrad = ctx.createLinearGradient(pivotX, pivotY, bobX, bobY);
@@ -183,6 +194,12 @@ export function renderCartPendulum(ctx: CanvasRenderingContext2D, state: CartPen
 
     // --- State readout ---
     drawHUD(ctx, state);
+
+    // --- Hint ---
+    ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.font = "11px 'Inter', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Click near the pendulum to perturb it", width / 2, height - 12);
 }
 
 function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, cartX: number, scale: number, centerX: number, trackY: number): void {

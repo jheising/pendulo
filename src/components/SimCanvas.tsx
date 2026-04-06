@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback } from "react";
 import type { Rig, Dimensions } from "@/types/Rig";
+import { setTrailsEnabled } from "@/rigs/cartPendulum/renderer";
 
 interface Ripple {
     x: number;
@@ -17,14 +18,23 @@ interface SimCanvasProps {
     state: Record<string, number>;
     config: Record<string, number>;
     lastForce: number;
+    isRunning: boolean;
     onPerturb?: (stateKey: string, delta: number) => void;
 }
 
-export function SimCanvas({ rig, state, config, lastForce, onPerturb }: SimCanvasProps) {
+export function SimCanvas({ rig, state, config, lastForce, isRunning, onPerturb }: SimCanvasProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const ripplesRef = useRef<Ripple[]>([]);
     const rippleRafRef = useRef<number>(0);
+
+    // Sync trail/effect visibility with simulation state
+    useEffect(() => {
+        setTrailsEnabled(isRunning);
+        if (!isRunning) {
+            ripplesRef.current = [];
+        }
+    }, [isRunning]);
 
     // Ripple animation loop — runs independently so ripples animate even when sim is paused
     useEffect(() => {
@@ -161,7 +171,7 @@ export function SimCanvas({ rig, state, config, lastForce, onPerturb }: SimCanva
 
     const handleClick = useCallback(
         (e: React.MouseEvent<HTMLCanvasElement>) => {
-            if (!onPerturb || !containerRef.current) return;
+            if (!onPerturb || !containerRef.current || !isRunning) return;
 
             const rect = containerRef.current.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
@@ -177,7 +187,7 @@ export function SimCanvas({ rig, state, config, lastForce, onPerturb }: SimCanva
                 ripplesRef.current.push({ x: clickX, y: clickY, strength, startTime: performance.now() });
             }
         },
-        [rig, state, config, onPerturb]
+        [rig, state, config, onPerturb, isRunning]
     );
 
     return (
@@ -192,7 +202,7 @@ function easeOutCubic(t: number): number {
 }
 
 function drawForceArrow(ctx: CanvasRenderingContext2D, force: number, width: number, height: number) {
-    if (Math.abs(force) < 0.1) return;
+    if (Math.abs(force) < 0.001) return;
 
     const centerX = width / 2;
     const arrowY = height * 0.55 + 30;
@@ -228,5 +238,6 @@ function drawForceArrow(ctx: CanvasRenderingContext2D, force: number, width: num
     ctx.font = "10px 'JetBrains Mono', monospace";
     ctx.textAlign = "center";
     ctx.fillStyle = "rgba(0, 230, 118, 0.6)";
-    ctx.fillText(`${force.toFixed(1)} N`, centerX, arrowY + 18);
+    const precision = Math.abs(force) < 1 ? 2 : 1;
+    ctx.fillText(`${force.toFixed(precision)} N`, centerX, arrowY + 18);
 }
