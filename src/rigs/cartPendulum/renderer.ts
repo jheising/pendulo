@@ -196,10 +196,11 @@ export function renderCartPendulum(ctx: CanvasRenderingContext2D, state: CartPen
     drawHUD(ctx, state);
 
     // --- Hint ---
-    ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-    ctx.font = "11px 'Inter', sans-serif";
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.font = "13px 'Inter', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Click near the pendulum to perturb it", width / 2, height - 12);
+    ctx.fillText("Click near the pendulum to perturb it", width / 2, height - 14);
 }
 
 function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, cartX: number, scale: number, centerX: number, trackY: number): void {
