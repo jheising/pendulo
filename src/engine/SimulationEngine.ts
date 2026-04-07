@@ -5,6 +5,13 @@ import { rk4Step } from "./rk4";
 import { clamp, isFiniteState } from "@/utils/math";
 import { RingBuffer } from "@/utils/history";
 
+/** Box-Muller transform: generates Gaussian-distributed random numbers (mean=0, std=1) */
+function gaussianRandom(): number {
+    const u1 = Math.random();
+    const u2 = Math.random();
+    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+}
+
 const FIXED_DT = 0.001; // 1ms fixed timestep
 const MAX_ACCUMULATOR = 0.1; // 100ms cap to prevent spiral-of-death
 const HISTORY_CAPACITY = 5000; // ~50s at 10ms sample rate
@@ -124,7 +131,22 @@ export class SimulationEngine<S extends Record<string, number>, C extends Record
             let force = 0;
             if (this.controller) {
                 const controllerInput = this.rig.getControllerInput(this.state);
+
+                // Sensor noise: add Gaussian noise to controller inputs
+                const sensorNoise = (this.config as Record<string, number>).sensorNoise ?? 0;
+                if (sensorNoise > 0) {
+                    for (const key of Object.keys(controllerInput)) {
+                        controllerInput[key] += gaussianRandom() * sensorNoise;
+                    }
+                }
+
                 force = this.controller(controllerInput, FIXED_DT);
+            }
+
+            // Actuator noise: add Gaussian jitter to the applied force
+            const actuatorNoise = (this.config as Record<string, number>).actuatorNoise ?? 0;
+            if (actuatorNoise > 0) {
+                force += gaussianRandom() * actuatorNoise;
             }
 
             // Clamp force

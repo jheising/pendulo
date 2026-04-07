@@ -14,4 +14,6 @@ export interface CartPendulumConfig {
     g: number; // gravity (m/s^2)
     b: number; // friction coefficient
     maxForce: number; // force limit (N)
+    sensorNoise: number; // std dev of Gaussian noise added to sensor readings
+    actuatorNoise: number; // std dev of Gaussian noise added to applied force (N)
 }

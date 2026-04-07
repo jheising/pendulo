@@ -20,7 +20,9 @@ export const cartPendulumRig: Rig<CartPendulumState, CartPendulumConfig> = {
         l: 1.0,
         g: 9.81,
         b: 0.1,
-        maxForce: 30
+        maxForce: 30,
+        sensorNoise: 0,
+        actuatorNoise: 0
     },
 
     derivatives(state: CartPendulumState, config: CartPendulumConfig, controlInput: number): CartPendulumState {
@@ -47,7 +49,9 @@ export const cartPendulumRig: Rig<CartPendulumState, CartPendulumConfig> = {
             { key: "l", label: "Rod Length", min: 0.2, max: 3, step: 0.1, defaultValue: 1.0, unit: "m" },
             { key: "g", label: "Gravity", min: 0.1, max: 20, step: 0.1, defaultValue: 9.81, unit: "m/s\u00B2" },
             { key: "b", label: "Friction", min: 0, max: 10, step: 0.01, defaultValue: 0.1, unit: "" },
-            { key: "maxForce", label: "Max Force", min: 1, max: 1000, step: 1, defaultValue: 30, unit: "N" }
+            { key: "maxForce", label: "Max Force", min: 1, max: 1000, step: 1, defaultValue: 30, unit: "N" },
+            { key: "sensorNoise", label: "Sensor Noise", min: 0, max: 0.1, step: 0.001, defaultValue: 0, unit: "std" },
+            { key: "actuatorNoise", label: "Actuator Noise", min: 0, max: 5, step: 0.1, defaultValue: 0, unit: "N" }
         ];
     },
 
@@ -91,37 +95,37 @@ export const cartPendulumRig: Rig<CartPendulumState, CartPendulumConfig> = {
                 id: "default",
                 label: "Wheeled Cart",
                 description: "Standard cart on wheels with moderate friction",
-                config: { M: 1.0, m: 0.3, l: 1.0, g: 9.81, b: 0.1, maxForce: 30 }
+                config: { M: 1.0, m: 0.3, l: 1.0, g: 9.81, b: 0.1, maxForce: 30, sensorNoise: 0, actuatorNoise: 0 }
             },
             {
                 id: "linear-actuator",
                 label: "Linear Actuator",
                 description: "Low-mass carriage on a rail driven by a belt or leadscrew",
-                config: { M: 0.1, m: 0.3, l: 1.0, g: 9.81, b: 0, maxForce: 50 }
+                config: { M: 0.1, m: 0.3, l: 1.0, g: 9.81, b: 0, maxForce: 50, sensorNoise: 0, actuatorNoise: 0 }
             },
             {
                 id: "segway",
                 label: "Segway",
                 description: "Heavy platform with rider, short effective pendulum, high torque wheels",
-                config: { M: 80, m: 10, l: 1.0, g: 9.81, b: 5, maxForce: 500 }
+                config: { M: 80, m: 10, l: 1.0, g: 9.81, b: 5, maxForce: 500, sensorNoise: 0, actuatorNoise: 0 }
             },
             {
                 id: "long-rod",
                 label: "Long Rod",
                 description: "Extra-long pendulum with slow, dramatic swings",
-                config: { M: 1.0, m: 0.1, l: 3.0, g: 9.81, b: 0.1, maxForce: 30 }
+                config: { M: 1.0, m: 0.1, l: 3.0, g: 9.81, b: 0.1, maxForce: 30, sensorNoise: 0, actuatorNoise: 0 }
             },
             {
                 id: "heavy-bob",
                 label: "Heavy Bob",
                 description: "Large mass at the tip — harder to control, needs more force",
-                config: { M: 1.0, m: 2.0, l: 1.0, g: 9.81, b: 0.1, maxForce: 60 }
+                config: { M: 1.0, m: 2.0, l: 1.0, g: 9.81, b: 0.1, maxForce: 60, sensorNoise: 0, actuatorNoise: 0 }
             },
             {
                 id: "moon",
                 label: "Moon Gravity",
                 description: "Same cart on the lunar surface — 1/6th Earth gravity",
-                config: { M: 1.0, m: 0.3, l: 1.0, g: 1.62, b: 0.1, maxForce: 30 }
+                config: { M: 1.0, m: 0.3, l: 1.0, g: 1.62, b: 0.1, maxForce: 30, sensorNoise: 0, actuatorNoise: 0 }
             }
         ];
     },
