@@ -10,7 +10,7 @@ export const cartPendulumRig: Rig<CartPendulumState, CartPendulumConfig> = {
     defaultState: {
         x: 0,
         xDot: 0,
-        theta: 0.17, // ~10 degrees
+        theta: Math.PI, // start hanging down — swing-up controller will right it
         thetaDot: 0
     },
 
@@ -55,7 +55,7 @@ export const cartPendulumRig: Rig<CartPendulumState, CartPendulumConfig> = {
         return [
             { key: "x", label: "Cart Position", min: -5, max: 5, step: 0.1, defaultValue: 0, unit: "m" },
             { key: "xDot", label: "Cart Velocity", min: -5, max: 5, step: 0.1, defaultValue: 0, unit: "m/s" },
-            { key: "theta", label: "Pendulum Angle", min: -3.14, max: 3.14, step: 0.01, defaultValue: 0.17, unit: "rad" },
+            { key: "theta", label: "Pendulum Angle", min: -3.14, max: 3.14, step: 0.01, defaultValue: 3.14, unit: "rad" },
             { key: "thetaDot", label: "Angular Velocity", min: -10, max: 10, step: 0.1, defaultValue: 0, unit: "rad/s" }
         ];
     },

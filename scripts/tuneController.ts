@@ -9,7 +9,7 @@ import { clamp, isFiniteState } from "../src/utils/math";
 import type { CartPendulumState, CartPendulumConfig } from "../src/rigs/cartPendulum/types";
 
 const FIXED_DT = 0.001;
-const SIM_DURATION = 15; // seconds
+const SIM_DURATION = 20; // seconds
 const PRINT_INTERVAL = 0.25; // print state every 250ms of sim time
 const TOTAL_STEPS = Math.round(SIM_DURATION / FIXED_DT);
 const PRINT_EVERY = Math.round(PRINT_INTERVAL / FIXED_DT);
@@ -17,28 +17,44 @@ const PRINT_EVERY = Math.round(PRINT_INTERVAL / FIXED_DT);
 // Allow passing controller code as a file argument, otherwise use default
 const controllerCode = `
 function controller(state, dt) {
-    // PD gains for pendulum angle (positive: push cart toward the lean to catch it)
-    const Kp = 150;
-    const Kd = 30;
+    const m = 0.3, l = 1.0, g = 9.81;
+    const omega = state.angularVelocity;
 
-    // PD gains for cart centering (gentle — must not fight the pendulum controller)
-    const Kx = 4;
-    const Kv = 10;
+    // Normalize angle to [-pi, pi]
+    let theta = state.angle % (2 * Math.PI);
+    if (theta > Math.PI) theta -= 2 * Math.PI;
+    if (theta < -Math.PI) theta += 2 * Math.PI;
 
-    // Full state feedback: all terms same sign
-    // Cart terms push WITH the displacement to indirectly lean the pendulum back
-    return Kp * state.angle + Kd * state.angularVelocity + Kx * state.cartPosition + Kv * state.cartVelocity;
+    // Pendulum energy relative to upright (E=0 when perfectly balanced)
+    const E = 0.5 * m * l * l * omega * omega + m * g * l * (Math.cos(theta) - 1);
+
+    // Near upright and moving slowly enough to catch? Use LQR with clamped cart contribution
+    if (Math.abs(theta) < 1.0 && Math.abs(omega) < 5) {
+        // LQR-optimal gains (Riccati, Q=diag(500,100,1000,100), R=1)
+        const pendulumForce = 150.32 * theta + 53.33 * omega;
+        const cartForce = 22.36 * state.cartPosition + 30.35 * state.cartVelocity;
+
+        // Dynamic clamp: allow more cart force as pendulum stabilizes
+        // Just caught (|theta| ~ 1 rad): max 8N. Well balanced (|theta| ~ 0): full 30N.
+        const stability = 1 - Math.min(Math.abs(theta), 1);
+        const maxCartForce = 8 + 22 * stability;
+        const clampedCart = Math.max(-maxCartForce, Math.min(maxCartForce, cartForce));
+
+        return pendulumForce + clampedCart;
+    }
+
+    // Swing-up: energy pumping
+    const ke = 4.0;
+    const swingForce = ke * E * Math.sign(omega * Math.cos(theta));
+
+    const centerForce = -(1.0 * state.cartPosition + 2.0 * state.cartVelocity);
+
+    return swingForce + centerForce;
 }`;
 
 const rig = cartPendulumRig;
-const config: CartPendulumConfig = {
-    ...rig.defaultConfig,
-    // Linear actuator: low-mass carriage, no passive friction, high force authority
-    M: 0.1,
-    b: 0,
-    maxForce: 50
-};
-let state: CartPendulumState = { ...rig.defaultState };
+const config: CartPendulumConfig = { ...rig.defaultConfig };
+let state: CartPendulumState = { ...rig.defaultState }; // starts hanging down (theta=pi)
 
 const compiled = compileController(controllerCode);
 if (!compiled.success || !compiled.controller) {

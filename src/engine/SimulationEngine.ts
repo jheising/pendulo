@@ -92,6 +92,11 @@ export class SimulationEngine<S extends Record<string, number>, C extends Record
         }
     }
 
+    /** Update the live state directly (for preview/slider updates without resetting time/history). */
+    setState(newState: Partial<S>): void {
+        this.state = { ...this.state, ...newState };
+    }
+
     reset(initialState?: Partial<S>): void {
         this.state = { ...this.rig.defaultState, ...initialState };
         this.accumulator = 0;

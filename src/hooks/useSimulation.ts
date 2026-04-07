@@ -18,6 +18,7 @@ export interface UseSimulationResult {
     setConfig: (config: Record<string, number>) => void;
     setSpeedMultiplier: (multiplier: number) => void;
     perturb: (stateKey: string, delta: number) => void;
+    setState: (state: Partial<Record<string, number>>) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,6 +88,14 @@ export function useSimulation(rig: Rig<any, any>): UseSimulationResult {
         [engine]
     );
 
+    const setStateDirectly = useCallback(
+        (newState: Partial<Record<string, number>>) => {
+            engine.setState(newState);
+            setTick(t => t + 1);
+        },
+        [engine]
+    );
+
     return useMemo(
         () => ({
             state: engine.getState(),
@@ -100,9 +109,10 @@ export function useSimulation(rig: Rig<any, any>): UseSimulationResult {
             setController,
             setConfig,
             setSpeedMultiplier,
-            perturb
+            perturb,
+            setState: setStateDirectly
         }),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [engine, play, pause, reset, setController, setConfig, setSpeedMultiplier, perturb, isRunning, engine.time]
+        [engine, play, pause, reset, setController, setConfig, setSpeedMultiplier, perturb, setStateDirectly, isRunning, engine.time]
     );
 }

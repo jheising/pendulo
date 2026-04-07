@@ -54,9 +54,19 @@ export default function App() {
         setConfig(prev => ({ ...(typeof prev === "object" ? prev : {}), [key]: value }));
     }, [setConfig]);
 
-    const handleInitialConditionChange = useCallback((key: string, value: number) => {
-        setInitialConditions(prev => ({ ...(typeof prev === "object" ? prev : {}), [key]: value }));
-    }, [setInitialConditions]);
+    const engine = sim.engine;
+    const [, forceRender] = useState(0);
+    const handleInitialConditionChange = useCallback(
+        (key: string, value: number) => {
+            setInitialConditions(prev => ({ ...(typeof prev === "object" ? prev : {}), [key]: value }));
+            // Update the live engine state so the canvas preview reflects the change
+            if (engine.status !== "running") {
+                engine.setState({ [key]: value });
+                forceRender(n => n + 1);
+            }
+        },
+        [setInitialConditions, engine]
+    );
 
     const handlePresetSelect = useCallback(
         (presetConfig: Record<string, number>) => {
@@ -109,7 +119,7 @@ export default function App() {
             </header>
 
             <section className="app-canvas" aria-label="Simulation visualization">
-                <SimCanvas rig={rig} state={sim.state} config={config} lastForce={sim.lastForce} isRunning={sim.status === "running"} onPerturb={sim.perturb} />
+                <SimCanvas rig={rig} state={engine.getState()} config={config} lastForce={sim.lastForce} isRunning={sim.status === "running"} onPerturb={sim.perturb} />
             </section>
 
             <ResizeHandle direction="horizontal" onMouseDown={sidebar.startDrag} isDragging={sidebar.isDragging} />
